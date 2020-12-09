@@ -75,7 +75,7 @@ namespace ProconFuckingSolution {
 			if (deep < 0 || IsOutOfMap(x, y) || vis.Contains(new Point(x, y)) || mapObs[x, y]
 					|| brain.HasMyAgent(x, y) || brain.HasEnemyAgent(x, y)) return curProfit;
 			// he so tuy chinh bao
-			if (startConvexHull && deep == deepConvexHull) {
+			if (startConvexHull && (deep == deepConvexHull || GAME.beforeGame.Turns - GAME.onGame.Turn <= deepConvexHull)) {
 				var mapOwnClone = mapOwn.Clone();
 				foreach (var poi in vis) {
 					mapOwnClone[poi.X, poi.Y] = beforeGame.TeamID;
@@ -84,6 +84,8 @@ namespace ProconFuckingSolution {
 			}
 			vis.Add(new Point(x, y));
 			int maxProfit = 0;
+			// nếu đi vào ô của đối thủ thì mất 1 turn
+			if (mapOwn[x, y] > 0 && mapOwn[x, y] != GAME.beforeGame.TeamID) deep--;
 			for (int i = 0; i < 8; i++) {
 				int cur = TryGo(x + dx[i], y + dy[i], deep - 1, new List<Point>(vis), curProfit + mapScores[x, y]);
 				maxProfit = Math.Max(maxProfit, cur);
@@ -105,7 +107,7 @@ namespace ProconFuckingSolution {
 			mapOwn = brain.GetMapOwn();
 			size = brain.size;
 
-			// sua score
+			// sua score nếu đi rồi cho nó = 0
 			for (int i = 1; i <= size; i++) {
 				for (int j = 0; j <= size; j++) {
 					if (mapOwn[i, j] == beforeGame.TeamID) mapScores[i, j] = 0;
@@ -113,8 +115,8 @@ namespace ProconFuckingSolution {
 			}
 
 			for (int i = 1; i <= size; i++) {
-				for (int j = 0; j <= size; j++) {
-					Console.Write(mapScores[i, j] + " ");
+				for (int j = 1; j <= size; j++) {
+					Console.Write("{0,3}", mapScores[i, j]);
 				}
 				Console.WriteLine();
 			}
@@ -130,7 +132,7 @@ namespace ProconFuckingSolution {
 					if (mapObs[age.x + dx[i], age.y + dy[i]]) continue;
 					int curProfit = -10;
 					// thử độ sâu
-					for (int findRange = 1; findRange <= 6; findRange++)
+					for (int findRange = 1; findRange <= Math.Min(6, GAME.beforeGame.Turns - GAME.onGame.Turn); findRange++)
 						curProfit = Math.Max(curProfit, TryGo(age.x + dx[i], age.y + dy[i], findRange, new List<Point>(), 0));
 					if (maxProfit < curProfit) {
 						maxProfit = curProfit;
@@ -140,26 +142,37 @@ namespace ProconFuckingSolution {
 						res.Add(i);
 					}
 				}
+
 				int bestChoice = res[0];
-				if (maxProfit <= -5) {
+				if (maxProfit <= -10) {
+					// điểm nhận được <= -10 thì cũng chả có lợi lộc j, đứng cmn im
 					bestChoice = -1;
 				}
 				else {
 					int maxIfChoose = -1000;
-					// nếu có nhiều hướng đi mò xem hướng nào nhiều điểm nhất
+					int totalStep = 6;
+					// nếu có nhiều hướng đi mò xem hướng nào nhiều điểm nhất và có số bước ít nhất
 					foreach (var j in res) {
-						for (int k = 0; k < 8; k++) {
-							int cur1 = -10;
-							for (int findRange = 1; findRange <= 5; findRange++) {
-								cur1 = Math.Max(cur1,
-									TryGo(age.x + dx[j] + dx[k], age.y + dy[j] + dy[k], findRange - 1, new List<Point>(), 0));
-							}
-							if (maxIfChoose < cur1) {
-								maxIfChoose = cur1;
-								bestChoice = j;
+						int step = 0;
+						int curProfit = 0;
+						for (int findRange = 1; findRange <= Math.Min(5, GAME.beforeGame.Turns - GAME.onGame.Turn); findRange++) {
+							int tryFire = TryGo(age.x + dx[j], age.y + dy[j], findRange, new List<Point>(), 0);
+							if (tryFire > curProfit) {
+								curProfit = tryFire;
+								step = findRange;
 							}
 						}
+						if (maxIfChoose < curProfit) {
+							maxIfChoose = curProfit;
+							bestChoice = j;
+							totalStep = step;
+						}
+						else if (maxIfChoose == curProfit && totalStep > step) {
+							totalStep = step;
+							bestChoice = j;
+						}
 					}
+					Console.WriteLine(string.Format("[{0},{1}] step: {2} profit: {3}", age.x, age.y, totalStep + 1, maxProfit));
 
 					// nếu bước tiếp theo nhận đc 0 điểm
 					if (mapScores[age.x + dx[bestChoice], age.y + dy[bestChoice]] == 0) {
@@ -169,7 +182,6 @@ namespace ProconFuckingSolution {
 						if (!IsOutOfMap(nx, ny) && !mapObs[nx, ny] && !GAME.brain.HasEnemyAgent(nx, ny) && mapScores[nx, ny] > 0) {
 							bestChoice = (bestChoice + 1) % 8;
 							maxIfChoose = mapScores[nx, ny];
-							Console.WriteLine("asdonqewfnojqendoqnwodnqow");
 						}
 						nx = age.x + dx[(bestChoice + 7) % 8];
 						ny = age.y + dy[(bestChoice + 7) % 8];
@@ -207,7 +219,7 @@ namespace ProconFuckingSolution {
 			}
 			string json = JsonConvert.SerializeObject(postActions);
 			GAME.request.PostRequest(@"/matches/" + GAME.request.GetMatchID() + @"/action", json);
-			Console.WriteLine(json);
+			//Console.WriteLine(json);
 		}
 	}
 }

@@ -31,7 +31,7 @@ namespace ProconFuckingSolution {
 
 		public void PostRequest(string methodUrl, string json) {
 			string url = string.Format("{0}/{1}", baseUrl.TrimEnd('/'), methodUrl.TrimStart('/'));
-			Console.WriteLine(url);
+			//Console.WriteLine(url);
 			var client = new RestClient(url);
 			client.Timeout = -1;
 			var request = new RestRequest(Method.POST);
