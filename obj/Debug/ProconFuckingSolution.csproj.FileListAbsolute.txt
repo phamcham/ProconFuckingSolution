@@ -1,0 +1,11 @@
+C:\Users\Admin\source\repos\ProconFuckingSolution\bin\Debug\ProconFuckingSolution.exe.config
+C:\Users\Admin\source\repos\ProconFuckingSolution\bin\Debug\ProconFuckingSolution.exe
+C:\Users\Admin\source\repos\ProconFuckingSolution\bin\Debug\ProconFuckingSolution.pdb
+C:\Users\Admin\source\repos\ProconFuckingSolution\bin\Debug\RestSharp.dll
+C:\Users\Admin\source\repos\ProconFuckingSolution\bin\Debug\RestSharp.xml
+C:\Users\Admin\source\repos\ProconFuckingSolution\obj\Debug\ProconFuckingSolution.csprojAssemblyReference.cache
+C:\Users\Admin\source\repos\ProconFuckingSolution\obj\Debug\ProconFuckingSolution.csproj.CopyComplete
+C:\Users\Admin\source\repos\ProconFuckingSolution\obj\Debug\ProconFuckingSolution.exe
+C:\Users\Admin\source\repos\ProconFuckingSolution\obj\Debug\ProconFuckingSolution.pdb
+C:\Users\Admin\source\repos\ProconFuckingSolution\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Admin\source\repos\ProconFuckingSolution\bin\Debug\Newtonsoft.Json.xml
